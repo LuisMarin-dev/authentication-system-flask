@@ -3,6 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 import os
 from flask import Flask, request, jsonify, url_for
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
@@ -13,6 +14,10 @@ from models import db, User
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = os.getenv("FLASK_APP_KEY") # Getting the key from environment variables
+jwt = JWTManager(app)
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -45,7 +50,19 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+@app.route("/register", methods=['POST'])
+def handle_register():
 
+    body = request.json
+
+    email = body.get("email")
+    password = body.get("password")
+
+    if email is None or password is None:
+        return jsonify({"message":"Invalid Credentials"}), 400
+
+    print(body)
+    return("prueba")
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
